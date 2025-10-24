@@ -13,9 +13,7 @@ services:
     volumes:
       # Optional: Mount logs directory if you want persistent logs
       - ./logs:/app/logs
-    # Add security options for running Chromium
-    cap_add:
-      - SYS_ADMIN
-    # Alternative to SYS_ADMIN (more secure but may not work in all environments)
+    # Chromium runs with --no-sandbox flag, so no special capabilities needed
+    # If you experience issues, you can uncomment the following (less secure):
     # security_opt:
     #   - seccomp:unconfined
