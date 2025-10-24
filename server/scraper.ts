@@ -66,8 +66,8 @@ export async function scrapeGoogleMaps(query: SearchQuery): Promise<BusinessResu
     // Scroll to load more results
     await scrollFeed(page, query.maxResults);
     
-    // Extract business data
-    const results = await page.evaluate((maxResults) => {
+    // Extract business links and basic data
+    const businessLinks = await page.evaluate((maxResults) => {
       const businesses: any[] = [];
       const elements = document.querySelectorAll('div[role="feed"] > div > div > a');
       
@@ -76,8 +76,9 @@ export async function scrapeGoogleMaps(query: SearchQuery): Promise<BusinessResu
       extractedElements.forEach((element, index) => {
         try {
           const aria = element.getAttribute('aria-label') || '';
+          const href = element.getAttribute('href') || '';
           
-          // Extract name (first part before rating or address)
+          // Extract name
           let name = '';
           const nameMatch = aria.match(/^([^·]+)/);
           if (nameMatch) {
@@ -107,7 +108,7 @@ export async function scrapeGoogleMaps(query: SearchQuery): Promise<BusinessResu
             category = categoryElem.textContent.trim();
           }
           
-          // Extract address (usually after ·)
+          // Extract address
           let address = '';
           const addressMatch = aria.match(/·\s*([^·]+?)(?:\s*·|$)/);
           if (addressMatch) {
@@ -128,8 +129,8 @@ export async function scrapeGoogleMaps(query: SearchQuery): Promise<BusinessResu
             rating,
             reviewCount,
             category,
-            phone: null,
-            website: null,
+            href,
+            index,
           });
         } catch (err) {
           console.error('Error extracting business:', err);
@@ -139,16 +140,110 @@ export async function scrapeGoogleMaps(query: SearchQuery): Promise<BusinessResu
       return businesses;
     }, query.maxResults);
     
+    // Click into each business to get detailed information
+    const detailedResults: BusinessResult[] = [];
+    
+    for (let i = 0; i < businessLinks.length; i++) {
+      const business = businessLinks[i];
+      
+      try {
+        console.log(`Extracting details for business ${i + 1}/${businessLinks.length}: ${business.name}`);
+        
+        // Click on the business listing
+        const feedSelector = 'div[role="feed"] > div > div > a';
+        await page.evaluate((index: number, selector: string) => {
+          const elements = document.querySelectorAll(selector);
+          const element = elements[index] as HTMLElement;
+          if (element) {
+            element.click();
+          }
+        }, i, feedSelector);
+        
+        // Wait for details panel to load
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Extract detailed information
+        const details = await page.evaluate(() => {
+          let phone = null;
+          let email = null;
+          let website = null;
+          
+          // Try to find phone number
+          const phoneButtons = Array.from(document.querySelectorAll('button[data-item-id*="phone"]'));
+          if (phoneButtons.length > 0) {
+            const phoneButton = phoneButtons[0] as HTMLElement;
+            const phoneText = phoneButton.getAttribute('aria-label') || phoneButton.textContent || '';
+            const phoneMatch = phoneText.match(/[\d\s\-\(\)]+/);
+            if (phoneMatch) {
+              phone = phoneMatch[0].trim();
+            }
+          }
+          
+          // Look for phone in other places
+          if (!phone) {
+            const allButtons = Array.from(document.querySelectorAll('button'));
+            for (const button of allButtons) {
+              const text = button.getAttribute('aria-label') || button.textContent || '';
+              if (text.toLowerCase().includes('phone') || text.match(/\(\d{3}\)/)) {
+                const phoneMatch = text.match(/[\(\d][\d\s\-\(\)]{8,}/);
+                if (phoneMatch) {
+                  phone = phoneMatch[0].trim();
+                  break;
+                }
+              }
+            }
+          }
+          
+          // Try to find website
+          const websiteLinks = Array.from(document.querySelectorAll('a[data-item-id*="authority"]'));
+          if (websiteLinks.length > 0) {
+            const websiteLink = websiteLinks[0] as HTMLAnchorElement;
+            website = websiteLink.href;
+          }
+          
+          // Look for email addresses in the page
+          const bodyText = document.body.innerText;
+          const emailMatch = bodyText.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+          if (emailMatch) {
+            email = emailMatch[0];
+          }
+          
+          return { phone, email, website };
+        });
+        
+        detailedResults.push({
+          id: randomUUID(),
+          name: business.name,
+          address: business.address,
+          rating: business.rating,
+          reviewCount: business.reviewCount,
+          category: business.category,
+          phone: details.phone,
+          email: details.email,
+          website: details.website,
+        });
+        
+      } catch (err) {
+        console.error(`Error getting details for ${business.name}:`, err);
+        // Add business with null details if we fail
+        detailedResults.push({
+          id: randomUUID(),
+          name: business.name,
+          address: business.address,
+          rating: business.rating,
+          reviewCount: business.reviewCount,
+          category: business.category,
+          phone: null,
+          email: null,
+          website: null,
+        });
+      }
+    }
+    
     await browser.close();
     
-    // Add IDs to results
-    const resultsWithIds: BusinessResult[] = results.map(result => ({
-      ...result,
-      id: randomUUID(),
-    }));
-    
-    console.log(`Successfully scraped ${resultsWithIds.length} businesses`);
-    return resultsWithIds;
+    console.log(`Successfully scraped ${detailedResults.length} businesses with details`);
+    return detailedResults;
     
   } catch (error) {
     if (browser) {
