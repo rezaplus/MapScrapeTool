@@ -24,7 +24,7 @@ export default function Home() {
   const scrapeMutation = useMutation({
     mutationFn: async (query: SearchQuery) => {
       const response = await apiRequest("POST", "/api/scrape", query);
-      return response as ScrapingResponse;
+      return await response.json() as ScrapingResponse;
     },
     onSuccess: (data) => {
       setResults(data.results);
