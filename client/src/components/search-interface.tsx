@@ -54,7 +54,7 @@ export function SearchInterface({ onSearch, isSearching }: SearchInterfaceProps)
 
   return (
     <section id="search" className="py-12 md:py-16">
-      <div className="container px-4">
+      <div className="container mx-auto px-4">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-8">
             <h2 className="text-3xl md:text-4xl font-semibold mb-3">
