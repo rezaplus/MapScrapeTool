@@ -143,13 +143,14 @@ export default function Home() {
 }
 
 function convertToCSV(data: BusinessResult[]): string {
-  const headers = ["Name", "Address", "Rating", "Review Count", "Phone", "Website", "Category"];
+  const headers = ["Name", "Address", "Rating", "Review Count", "Phone", "Email", "Website", "Category"];
   const rows = data.map((item) => [
     item.name,
     item.address,
     item.rating?.toString() || "",
     item.reviewCount?.toString() || "",
     item.phone || "",
+    item.email || "",
     item.website || "",
     item.category || "",
   ]);
