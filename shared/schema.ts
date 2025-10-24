@@ -8,6 +8,7 @@ export const businessResultSchema = z.object({
   rating: z.number().nullable(),
   reviewCount: z.number().nullable(),
   phone: z.string().nullable(),
+  email: z.string().nullable(),
   website: z.string().nullable(),
   category: z.string().nullable(),
 });
