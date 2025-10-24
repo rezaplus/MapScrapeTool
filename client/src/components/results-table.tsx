@@ -28,7 +28,7 @@ export function ResultsTable({
   if (isLoading) {
     return (
       <section className="py-12">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-7xl">
             <Card>
               <CardHeader>
@@ -59,7 +59,7 @@ export function ResultsTable({
   if (!results || results.length === 0) {
     return (
       <section className="py-12">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-7xl">
             <Card>
               <CardContent className="py-16">
@@ -96,7 +96,7 @@ export function ResultsTable({
 
   return (
     <section className="py-12" id="results">
-      <div className="container px-4">
+      <div className="container mx-auto px-4">
         <div className="mx-auto max-w-7xl">
           <Card>
             <CardHeader>

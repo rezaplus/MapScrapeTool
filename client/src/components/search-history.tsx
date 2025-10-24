@@ -17,7 +17,7 @@ export function SearchHistory({ history, onRerun, onClear }: SearchHistoryProps)
 
   return (
     <section className="py-12 bg-muted/30">
-      <div className="container px-4">
+      <div className="container mx-auto px-4">
         <div className="mx-auto max-w-5xl">
           <Card>
             <CardHeader>

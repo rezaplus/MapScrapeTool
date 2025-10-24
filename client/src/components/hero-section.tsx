@@ -9,7 +9,7 @@ export function HeroSection({ onScrollToSearch }: { onScrollToSearch: () => void
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.1),transparent_50%),radial-gradient(circle_at_70%_80%,rgba(139,92,246,0.1),transparent_50%)]" />
       
       {/* Content */}
-      <div className="relative z-10 container px-4 text-center">
+      <div className="relative z-10 container mx-auto px-4 text-center">
         <div className="mx-auto max-w-4xl space-y-8">
           <div className="space-y-4">
             <h1 className="text-5xl md:text-6xl font-bold tracking-tight">
