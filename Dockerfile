@@ -30,14 +30,17 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev dependencies for build)
+RUN npm ci
 
 # Copy application files
 COPY . .
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies
+RUN npm prune --production
 
 # Set Puppeteer to use installed Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true

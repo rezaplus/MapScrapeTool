@@ -4,11 +4,16 @@ import { randomUUID } from "crypto";
 import { execSync } from "child_process";
 
 function findChromiumPath(): string {
+  // Check for Docker/system Chromium first
+  if (process.env.PUPPETEER_EXECUTABLE_PATH) {
+    return process.env.PUPPETEER_EXECUTABLE_PATH;
+  }
+  
   try {
     const path = execSync('which chromium || which chromium-browser', { encoding: 'utf8' }).trim();
     if (path) return path;
   } catch {
-    // Try to find in nix store
+    // Try to find in nix store (for Replit)
     try {
       const nixPath = execSync('find /nix/store -name "chromium" -type f 2>/dev/null | grep -E "bin/chromium$" | head -1', { encoding: 'utf8' }).trim();
       if (nixPath) return nixPath;
