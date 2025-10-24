@@ -123,7 +123,7 @@ export function ResultsTable({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="font-semibold">Business Name</TableHead>
+                        <TableHead className="font-semibold w-48">Business Name</TableHead>
                         <TableHead className="font-semibold">Address</TableHead>
                         <TableHead className="font-semibold">Rating</TableHead>
                         <TableHead className="font-semibold">Phone</TableHead>
