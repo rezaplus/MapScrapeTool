@@ -127,6 +127,7 @@ export function ResultsTable({
                         <TableHead className="font-semibold">Address</TableHead>
                         <TableHead className="font-semibold">Rating</TableHead>
                         <TableHead className="font-semibold">Phone</TableHead>
+                        <TableHead className="font-semibold">Email</TableHead>
                         <TableHead className="font-semibold">Website</TableHead>
                         <TableHead className="font-semibold w-24">Actions</TableHead>
                       </TableRow>
@@ -175,6 +176,18 @@ export function ResultsTable({
                                 <Phone className="h-4 w-4 text-muted-foreground" />
                                 <span className="text-sm font-mono">{result.phone}</span>
                               </div>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">N/A</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {result.email ? (
+                              <a
+                                href={`mailto:${result.email}`}
+                                className="text-sm text-primary hover:underline"
+                              >
+                                {result.email}
+                              </a>
                             ) : (
                               <span className="text-muted-foreground text-sm">N/A</span>
                             )}
